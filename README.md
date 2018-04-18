@@ -1,6 +1,6 @@
-# Canvas-Phrase-Checker
+# Find And Replace
 
-Canvas Phrase Checker will search the object that you choose (Content Pages, Discussions, Assignments, Quizzes) for a specific phrase and give you a report on where that phrase was found.
+Canvas Find And Replace will search the object that you choose (Content Pages, Discussions, Assignments) for a specific phrase or and give you a report on where it was found. You also have the option to replace that word or phrase with a new one.
 
 *A Couple Things to Note*
 
@@ -13,3 +13,5 @@ Canvas Phrase Checker will search the object that you choose (Content Pages, Dis
 3. After running the script, if any matches were found, a CSV will be generated in the "Logs" folder.  If you ran just a simple "Find" search, it will be nested under the "Find" folder.  If you ran a Find and Replace, it will be under the "Replace" folder.
 
 4. The portion that searches for your phrase is case insensitive.  It will find all variations of the phrase, however the "Replace" feature has an option for both sensitive and insensitive.  
+
+
