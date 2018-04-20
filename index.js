@@ -24,6 +24,7 @@ const rollBackApiGet = require("./handlers/page-roll-back/pagesV2.js")
 ///////////////////////WILEY SCRIPT////////////////////////
 const wileyAssessments = require("./handlers/name-addendum/assignments.js")
 ///////////////////////////////////////////////////////////
+const questionUpdate = require("./handlers/quiz-point-update/quizzes.js")
 
 
 
@@ -33,7 +34,7 @@ inquirer
         {
             type: "list",
             message: "Which Script Would You Like To Run??",
-            choices: ["Canvas Find And Replace", "Headers and Footers", "Pages Roll Back", "Wiley Assessments"],
+            choices: ["Canvas Find And Replace", "Headers and Footers", "Pages Roll Back", "Wiley Assessments", "Quiz Point Update"],
             name: "scriptChoice"
         },
 
@@ -50,12 +51,21 @@ inquirer
         },
         {
             type: "input",
+            message: "What is the Quiz Number?",
+            name: "quizNumber",
+            when: function(answers){
+                return answers.scriptChoice === 'Quiz Point Update';
+              }
+        },
+        {
+            type: "input",
             message: "What Point Value Do You Wish To Set?",
             name: "pointValue",
             when: function(answers){
-                return answers.scriptChoice === 'Wiley Assessments';
+                return answers.scriptChoice === 'Wiley Assessments' || answers.scriptChoice === 'Quiz Point Update';
               }
         },
+
 
         {
             type: "list",
@@ -167,6 +177,7 @@ inquirer
         var footerFileNumber = user.footerFileNumber
         var confirm = user.confirm
         var pointValue = user.pointValue
+        var quizNumber = user.quizNumber
 
         if (update === "Yes"){update = true}else{update = false}
         if (searchCaseSensitive === "Yes"){searchCaseSensitive = true}else{searchCaseSensitive = false}
@@ -208,9 +219,14 @@ inquirer
                     }else if(user.scriptChoice === 'Pages Roll Back'){
                         var rollBack = new rollBackApiGet(domain, userCourseNumber, revertOption)
                         rollBack.apiCall()
-                    }else{
+                    }else if (user.scriptChoice === "Wiley Assessments"){
                         var assessmentFix = new wileyAssessments(domain, userCourseNumber, pointValue)
                         assessmentFix.apiCall()
+                    } else if (user.scriptChoice === "Quiz Point Update"){
+                        var pointFix = new questionUpdate(domain, userCourseNumber, quizNumber, pointValue)
+                            pointFix.apiCall()
+                    }else{
+                        console.log("You Dun Broked something...")
                     }
         }
 
