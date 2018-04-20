@@ -10,23 +10,19 @@ const sleep = require('sleep');
 const style = require("ansi-styles");
 const colorize = require('colorize')
 
-////////////////////// EXPORTED MODULES ////////////////////
+////////////////////// TOKEN INFO ////////////////////////////
 const token = require("./handlers/config.js");
-///////////////////////////////////////////////////////////
 //////////////////// FIND AND REPLACE MODULES/////////////////
-///////////////////////////////////////////////////////////
 const pagesApiGet = require("./handlers/phrase-checker/pagesV2.js")
 const discussionsApiGet = require("./handlers/phrase-checker/discussionsV2.js")
 const assignmentsApiGet = require("./handlers/phrase-checker/assignmentsV2.js")
 const apiGetQuizzes = require("./handlers/phrase-checker/quizzes.js")
-///////////////////////////////////////////////////////////
 ///////////// HEADERS AND FOOTERS MODULES//////////////////
-///////////////////////////////////////////////////////////
 const apiGet = require("./handlers/header-footer/pages.js")
-///////////////////////////////////////////////////////////
 ////////////////////ROLL BACK MODULES/////////////////////
 const rollBackApiGet = require("./handlers/page-roll-back/pagesV2.js")
-///////////////////////////////////////////////////////////
+///////////////////////WILEY SCRIPT////////////////////////
+const wileyAssessments = require("./handlers/name-addendum/assignments.js")
 ///////////////////////////////////////////////////////////
 
 
@@ -37,7 +33,7 @@ inquirer
         {
             type: "list",
             message: "Which Script Would You Like To Run??",
-            choices: ["Canvas Find And Replace", "Headers and Footers", "Pages Roll Back"],
+            choices: ["Canvas Find And Replace", "Headers and Footers", "Pages Roll Back", "Wiley Assessments"],
             name: "scriptChoice"
         },
 
@@ -51,6 +47,14 @@ inquirer
             type: "input",
             message: "What is the course number?",
             name: "userCourseNumber"
+        },
+        {
+            type: "input",
+            message: "What Point Value Do You Wish To Set?",
+            name: "pointValue",
+            when: function(answers){
+                return answers.scriptChoice === 'Wiley Assessments';
+              }
         },
 
         {
@@ -162,32 +166,27 @@ inquirer
         var headerFileNumber = user.headerFileNumber
         var footerFileNumber = user.footerFileNumber
         var confirm = user.confirm
+        var pointValue = user.pointValue
 
         if (update === "Yes"){update = true}else{update = false}
         if (searchCaseSensitive === "Yes"){searchCaseSensitive = true}else{searchCaseSensitive = false}
         if (replaceCaseSensitive === "Yes"){replaceCaseSensitive = true}else{replaceCaseSensitive = false}
 
 
-        finish = () =>{
-            console.log("All Finished.")
-        }
 
         if (token.token === '') {
             console.log("\n\n")
             console.log("You Must Enter A Valid API Token In The CONFIG.JS file")
             console.log("\n\n")
         } else {
-
                 console.log("\n\n")
                 console.log(colorize.ansify("#blue[Gathering Information.  Please wait...]"))
-
                 if(user.scriptChoice === 'Canvas Find And Replace'){
-
                     var pagesApiGetInfo = new pagesApiGet(domain, checkObject, string, userCourseNumber, replaceString, update, replaceCaseSensitive, searchCaseSensitive)
                     var discussionsApiGetInfo = new discussionsApiGet(domain, checkObject, string, userCourseNumber, replaceString, update, replaceCaseSensitive, searchCaseSensitive)
                     var assignmentsApiGetInfo = new assignmentsApiGet(domain, checkObject, string, userCourseNumber, replaceString, update, replaceCaseSensitive, searchCaseSensitive)
                     var apiGetInfoQuizzes = new apiGetQuizzes(domain, checkObject, string, userCourseNumber, replaceString, update)
-
+                   
                     if (checkObject === "Pages") {
                         pagesApiGetInfo.apiCall()
                     } else if( checkObject === "Discussions") {
@@ -195,41 +194,24 @@ inquirer
                     } else if(checkObject === "Assignments"){
                         assignmentsApiGetInfo.apiCall()
                     } else if (checkObject === "All"){
-                            
                             discussionsApiGetInfo.apiCall()
                             assignmentsApiGetInfo.apiCall()
                             pagesApiGetInfo.apiCall()
-        
                     }
-
-
-
                 } else if(user.scriptChoice === 'Headers and Footers'){
-
                     var apiGetInfo = new apiGet(domain, userCourseNumber, headerFileNumber, footerFileNumber)
-
                     if(confirm){
-                        console.log("\n\n")
-                        console.log(colorize.ansify("#blue[Gathering Information.  Please wait...]"))
-            
-                        apiGetInfo.apiCall()
+                            apiGetInfo.apiCall()
                         }else{
-                            console.log("Thank you for double checking.  You just dodged a freaking bullet.")
-            
                             console.log(colorize.ansify("\n\n#red[Thank you for double checking.  You just dodged a bullet.]\n\n"))
                         }
-    
-                    }else{
-
+                    }else if(user.scriptChoice === 'Pages Roll Back'){
                         var rollBack = new rollBackApiGet(domain, userCourseNumber, revertOption)
-
-                        console.log("\n\n")
-                        console.log(colorize.ansify("#blue[Gathering Information.  Please wait...]"))
                         rollBack.apiCall()
-
+                    }else{
+                        var assessmentFix = new wileyAssessments(domain, userCourseNumber, pointValue)
+                        assessmentFix.apiCall()
                     }
-
-
         }
 
     })
