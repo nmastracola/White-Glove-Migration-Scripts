@@ -12,12 +12,12 @@
     "inquirer": "^5.2.0",
     "jquery": "^3.3.1",
     "line-by-line": "^0.1.6",
-    "request": "^2.85.0",
+    "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "sleep": "^5.1.1"
   },
   "devDependencies": {
-    "nodemon": "^1.17.2"
+    "nodemon": "^1.18.9"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

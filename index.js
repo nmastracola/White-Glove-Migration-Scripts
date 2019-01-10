@@ -25,25 +25,24 @@ const rollBackApiGet = require("./handlers/page-roll-back/pagesV2.js")
 const wileyAssessments = require("./handlers/name-addendum/assignments.js")
 ///////////////////////////////////////////////////////////
 const questionUpdate = require("./handlers/quiz-point-update/quizzes.js")
+//////////////////////ASSIGNMENT CREATE/////////'//////////
+const assignCreate = require("./handlers/assignment-create/create.js")
 
 
 
 inquirer
     .prompt([
-        
         {
             type: "list",
             message: "Which Script Would You Like To Run??",
-            choices: ["Canvas Find And Replace", "Headers and Footers", "Pages Roll Back", "Wiley Assessments", "Quiz Point Update"],
+            choices: ["Canvas Find And Replace", "Headers and Footers", "Pages Roll Back", "Wiley Assessments", "Quiz Point Update", "Create Assignments"],
             name: "scriptChoice"
         },
-
         {
             type: "input",
             message: "What is the School Domain?",
             name: "domain"
         },
-
         {
             type: "input",
             message: "What is the course number?",
@@ -65,8 +64,14 @@ inquirer
                 return answers.scriptChoice === 'Wiley Assessments' || answers.scriptChoice === 'Quiz Point Update';
               }
         },
-
-
+        {
+            type: "input",
+            message: "Please pass in CSV data",
+            name: "assingmentData",
+            when: function(answers){
+                return answers.scriptChoice === 'Create Assignments';
+            }
+        },
         {
             type: "list",
             message: "Do You Want Revert 1 Change or To the Beginning?",
@@ -76,7 +81,6 @@ inquirer
                 return answers.scriptChoice === 'Pages Roll Back';
               }
         },
-
         {
             type: "list",
             message: "What Items would you like to Check?",
@@ -86,7 +90,6 @@ inquirer
                 return answers.scriptChoice === 'Canvas Find And Replace';
               }
         },
-
         {
             type: "input",
             message: "What string are we searching for?",
@@ -95,7 +98,6 @@ inquirer
                 return answers.scriptChoice === 'Canvas Find And Replace';
               }
         },
-
         {
             name: 'searchCaseSensitive',
             type: "list",
@@ -105,7 +107,6 @@ inquirer
                 return answers.scriptChoice === 'Canvas Find And Replace';
               }
         },
-
         {
             type: "list",
             message: "Do You Want To Replace It With Something Else?",
@@ -115,7 +116,6 @@ inquirer
                 return answers.scriptChoice === 'Canvas Find And Replace';
               }
         },
-        
         {
             name: 'replaceString',
             message: 'What string are we replacing it with?',
@@ -124,7 +124,6 @@ inquirer
               return answers.update === 'Yes';
             }
         },
-
         {
             name: 'replaceCaseSensitive',
             type: "list",
@@ -134,7 +133,6 @@ inquirer
               return answers.update === 'Yes';
             }
         },
-
         {
             type: "input",
             message: "What is the header file number?",
@@ -143,7 +141,6 @@ inquirer
                 return answers.scriptChoice === 'Headers and Footers';
               }
         },
-
         {
             type: "input",
             message: "What is the footer file number?",
@@ -178,6 +175,7 @@ inquirer
         var confirm = user.confirm
         var pointValue = user.pointValue
         var quizNumber = user.quizNumber
+        var assignmentData = user.assignmentData
 
         if (update === "Yes"){update = true}else{update = false}
         if (searchCaseSensitive === "Yes"){searchCaseSensitive = true}else{searchCaseSensitive = false}
@@ -216,16 +214,19 @@ inquirer
                         }else{
                             console.log(colorize.ansify("\n\n#red[Thank you for double checking.  You just dodged a bullet.]\n\n"))
                         }
-                    }else if(user.scriptChoice === 'Pages Roll Back'){
+                    } else if (user.scriptChoice === 'Pages Roll Back'){
                         var rollBack = new rollBackApiGet(domain, userCourseNumber, revertOption)
                         rollBack.apiCall()
-                    }else if (user.scriptChoice === "Wiley Assessments"){
+                    } else if (user.scriptChoice === "Wiley Assessments"){
                         var assessmentFix = new wileyAssessments(domain, userCourseNumber, pointValue)
                         assessmentFix.apiCall()
                     } else if (user.scriptChoice === "Quiz Point Update"){
                         var pointFix = new questionUpdate(domain, userCourseNumber, quizNumber, pointValue)
                             pointFix.apiCall()
-                    }else{
+                    } else if (user.scriptChoice === 'Create Assignment'){
+                        var assignmentCreate = new AssignmentItems(domain, userCourseNumber, assignmentData)
+                            assignmentCreate.apiCall()
+                    } else {
                         console.log("You Dun Broked something...")
                     }
         }
